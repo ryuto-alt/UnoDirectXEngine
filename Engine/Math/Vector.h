@@ -49,6 +49,11 @@ public:
     static Vector3 UnitY() { return Vector3(0.0f, 1.0f, 0.0f); }
     static Vector3 UnitZ() { return Vector3(0.0f, 0.0f, 1.0f); }
 
+    // 線形補間
+    static Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t) {
+        return Vector3(DirectX::XMVectorLerp(v1.vec_, v2.vec_, t));
+    }
+
 private:
     DirectX::XMVECTOR vec_;
 };

@@ -169,6 +169,7 @@
     <ClCompile Include="Engine\Graphics\IndexBuffer.cpp" />
     <ClCompile Include="Engine\Graphics\Material.cpp" />
     <ClCompile Include="Engine\Graphics\Mesh.cpp" />
+    <ClCompile Include="Engine\Graphics\ComputePipeline.cpp" />
     <ClCompile Include="Engine\Resource\ObjLoader.cpp" />
     <ClCompile Include="Engine\Resource\GltfLoader.cpp" />
     <ClCompile Include="Engine\Graphics\Sprite.cpp" />
@@ -184,6 +185,7 @@
     <ClCompile Include="Engine\Rendering\Renderer.cpp" />
     <ClCompile Include="Engine\Rendering\Skeleton.cpp" />
     <ClCompile Include="Engine\Rendering\Animation.cpp" />
+    <ClCompile Include="Engine\Component\AnimationComponent.cpp" />
     <ClCompile Include="Game\GameApplication.cpp" />
     <ClCompile Include="Game\Systems\PlayerSystem.cpp" />
     <ClCompile Include="Game\UI\EditorUI.cpp" />
@@ -204,6 +206,7 @@
     <ClInclude Include="Engine\Rendering\RenderItem.h" />
     <ClInclude Include="Engine\Rendering\Skeleton.h" />
     <ClInclude Include="Engine\Rendering\Animation.h" />
+    <ClInclude Include="Engine\Component\AnimationComponent.h" />
     <ClInclude Include="Engine\Systems\ISystem.h" />
     <ClInclude Include="Engine\Graphics\ConstantBuffer.h" />
     <ClInclude Include="Engine\Core\NonCopyable.h" />
@@ -213,6 +216,7 @@
     <ClInclude Include="Engine\Window\Window.h" />
     <ClInclude Include="Engine\Graphics\Shader.h" />
     <ClInclude Include="Engine\Graphics\Pipeline.h" />
+    <ClInclude Include="Engine\Graphics\ComputePipeline.h" />
     <ClInclude Include="Engine\Graphics\VertexBuffer.h" />
     <ClInclude Include="Engine\Math\Math.h" />
     <ClInclude Include="Engine\Math\MathCommon.h" />
@@ -282,6 +286,11 @@
     </FxCompile>
     <FxCompile Include="Shaders\SpritePS.hlsl">
       <ShaderType>Pixel</ShaderType>
+      <ShaderModel>6.5</ShaderModel>
+      <EntryPointName>main</EntryPointName>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkinningCS.hlsl">
+      <ShaderType>Compute</ShaderType>
       <ShaderModel>6.5</ShaderModel>
       <EntryPointName>main</EntryPointName>
     </FxCompile>

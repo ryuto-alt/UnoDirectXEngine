@@ -69,6 +69,9 @@
     <Filter Include="Engine\externals\tinygltf">
       <UniqueIdentifier>{f1a2b3c4-d5e6-7f8a-9b0c-1d2e3f4a5b6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Component">
+      <UniqueIdentifier>{a2b3c4d5-e6f7-8901-2345-6789abcdef01}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -178,6 +181,18 @@
     </ClCompile>
     <ClCompile Include="Engine\Rendering\Renderer.cpp">
       <Filter>Engine\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Rendering\Skeleton.cpp">
+      <Filter>Engine\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Rendering\Animation.cpp">
+      <Filter>Engine\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Component\AnimationComponent.cpp">
+      <Filter>Engine\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\ComputePipeline.cpp">
+      <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Game\GameApplication.cpp">
       <Filter>Game</Filter>
@@ -340,6 +355,18 @@
     <ClInclude Include="Engine\Rendering\Renderer.h">
       <Filter>Engine\Rendering</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Rendering\Skeleton.h">
+      <Filter>Engine\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Rendering\Animation.h">
+      <Filter>Engine\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Component\AnimationComponent.h">
+      <Filter>Engine\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\ComputePipeline.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="Game\GameApplication.h">
       <Filter>Game</Filter>
     </ClInclude>
@@ -385,6 +412,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SpritePS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SkinningCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
