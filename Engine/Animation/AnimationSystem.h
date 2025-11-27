@@ -10,9 +10,16 @@ public:
     ~AnimationSystem() override = default;
 
     void OnUpdate(Scene* scene, float deltaTime) override;
-    
+
     // Animation system should run early to update bone matrices before rendering
     int GetPriority() const override { return 10; }
+
+    // Play/Pause control
+    void SetPlaying(bool playing) { isPlaying_ = playing; }
+    bool IsPlaying() const { return isPlaying_; }
+
+private:
+    bool isPlaying_ = false;  // 初期はオフ
 };
 
 } // namespace UnoEngine

@@ -6,7 +6,7 @@
 namespace UnoEngine {
 
 void AnimationSystem::OnUpdate(Scene* scene, float deltaTime) {
-    if (!scene) return;
+    if (!scene || !isPlaying_) return;
 
     const auto& gameObjects = scene->GetGameObjects();
 

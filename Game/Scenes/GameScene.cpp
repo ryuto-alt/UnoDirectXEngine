@@ -9,6 +9,8 @@
 #include "../../Engine/Rendering/Renderer.h"
 #include "../../Engine/Rendering/DebugRenderer.h"
 #include "../../Engine/Animation/AnimatorComponent.h"
+#include "../../Engine/Animation/AnimationSystem.h"
+#include "../../Engine/Systems/SystemManager.h"
 #include "../../Engine/Resource/ResourceManager.h"
 
 #ifdef _DEBUG
@@ -140,10 +142,15 @@ void GameScene::OnImGui() {
     }
     context.currentSceneName = "GameScene";
 
-    // Get DebugRenderer from GameApplication
+    // Get DebugRenderer and AnimationSystem from GameApplication
     auto* app = static_cast<GameApplication*>(GetApplication());
-    if (app && app->GetRenderer()) {
-        context.debugRenderer = app->GetRenderer()->GetDebugRenderer();
+    if (app) {
+        if (app->GetRenderer()) {
+            context.debugRenderer = app->GetRenderer()->GetDebugRenderer();
+        }
+        if (app->GetSystemManager()) {
+            context.animationSystem = app->GetSystemManager()->GetSystem<AnimationSystem>();
+        }
     }
 
     editorUI_.Render(context);
