@@ -6,6 +6,8 @@
 #include "../../Engine/Core/Logger.h"
 #include "../../Engine/Graphics/DirectionalLightComponent.h"
 #include "../../Engine/Rendering/SkinnedMeshRenderer.h"
+#include "../../Engine/Rendering/Renderer.h"
+#include "../../Engine/Rendering/DebugRenderer.h"
 #include "../../Engine/Animation/AnimatorComponent.h"
 #include "../../Engine/Resource/ResourceManager.h"
 
@@ -137,6 +139,12 @@ void GameScene::OnImGui() {
         context.loadedModels.push_back(loadedModelPath_);
     }
     context.currentSceneName = "GameScene";
+
+    // Get DebugRenderer from GameApplication
+    auto* app = static_cast<GameApplication*>(GetApplication());
+    if (app && app->GetRenderer()) {
+        context.debugRenderer = app->GetRenderer()->GetDebugRenderer();
+    }
 
     editorUI_.Render(context);
 #endif

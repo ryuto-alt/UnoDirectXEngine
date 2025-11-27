@@ -1,5 +1,7 @@
 #include "EditorUI.h"
 #include "../../Engine/Graphics/GraphicsDevice.h"
+#include "../../Engine/Rendering/DebugRenderer.h"
+#include "../../Engine/UI/imgui_toggle.h"
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -221,6 +223,22 @@ void EditorUI::RenderInspector(const EditorContext& context) {
         ImGui::Text("Scale: (%.2f, %.2f, %.2f)", scale.GetX(), scale.GetY(), scale.GetZ());
     } else {
         ImGui::Text("No object selected");
+    }
+
+    // Debug Settings Section
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Text("Debug Settings");
+    ImGui::Separator();
+
+    // Debug Bones Toggle
+    if (context.debugRenderer) {
+        bool showBones = context.debugRenderer->GetShowBones();
+        ImGui::Text("Debug Bones");
+        ImGui::SameLine(100.0f);
+        if (ImGui::Toggle("##BonesToggle", &showBones, ImGuiToggleFlags_Animated)) {
+            context.debugRenderer->SetShowBones(showBones);
+        }
     }
 
     ImGui::End();

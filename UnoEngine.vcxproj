@@ -203,6 +203,10 @@ xcopy "$(ProjectDir)external\assimp\bin\Release\*.dll" "$(OutDir)" /Y</Command>
     <ClCompile Include="Game\Systems\CameraSystem.cpp" />
     <ClCompile Include="Game\UI\EditorUI.cpp" />
     <ClCompile Include="Engine\UI\ImGuiManager.cpp" />
+    <ClCompile Include="Engine\UI\imgui_toggle.cpp" />
+    <ClCompile Include="Engine\UI\imgui_toggle_presets.cpp" />
+    <ClCompile Include="Engine\UI\imgui_toggle_renderer.cpp" />
+    <ClCompile Include="Engine\UI\imgui_toggle_palette.cpp" />
     <ClCompile Include="Engine\Graphics\SkinnedMesh.cpp" />
     <ClCompile Include="Engine\Graphics\SkinnedPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\DebugLinePipeline.cpp" />
@@ -272,6 +276,12 @@ xcopy "$(ProjectDir)external\assimp\bin\Release\*.dll" "$(OutDir)" /Y</Command>
     <ClInclude Include="Game\UI\EditorUI.h" />
     <ClInclude Include="Engine\Graphics\d3dx12.h" />
     <ClInclude Include="Engine\UI\ImGuiManager.h" />
+    <ClInclude Include="Engine\UI\imgui_toggle.h" />
+    <ClInclude Include="Engine\UI\imgui_toggle_palette.h" />
+    <ClInclude Include="Engine\UI\imgui_toggle_presets.h" />
+    <ClInclude Include="Engine\UI\imgui_offset_rect.h" />
+    <ClInclude Include="Engine\UI\imgui_toggle_math.h" />
+    <ClInclude Include="Engine\UI\imgui_toggle_renderer.h" />
     <ClInclude Include="Engine\Graphics\SkinnedMesh.h" />
     <ClInclude Include="Engine\Graphics\SkinnedPipeline.h" />
     <ClInclude Include="Engine\Graphics\DebugLinePipeline.h" />

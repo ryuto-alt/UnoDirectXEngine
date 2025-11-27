@@ -11,6 +11,8 @@ namespace UnoEngine {
 
 class GraphicsDevice;
 
+class DebugRenderer;
+
 // EditorUIに渡す情報をまとめた構造体
 struct EditorContext {
     GameObject* player = nullptr;
@@ -23,6 +25,9 @@ struct EditorContext {
     std::vector<std::string> loadedModels;
     std::vector<std::string> loadedTextures;
     std::string currentSceneName;
+
+    // デバッグ表示設定
+    DebugRenderer* debugRenderer = nullptr;
 };
 
 // Editor UI管理クラス
