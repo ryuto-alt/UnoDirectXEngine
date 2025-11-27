@@ -2,6 +2,7 @@
 #include "../../Engine/Graphics/GraphicsDevice.h"
 #include "../../Engine/Rendering/DebugRenderer.h"
 #include "../../Engine/UI/imgui_toggle.h"
+#include "../../Engine/UI/imgui_toggle_presets.h"
 #include <imgui.h>
 #include <imgui_internal.h>
 
@@ -231,12 +232,13 @@ void EditorUI::RenderInspector(const EditorContext& context) {
     ImGui::Text("Debug Settings");
     ImGui::Separator();
 
-    // Debug Bones Toggle
+    // Debug Bones Toggle (iOS style)
     if (context.debugRenderer) {
         bool showBones = context.debugRenderer->GetShowBones();
         ImGui::Text("Debug Bones");
         ImGui::SameLine(100.0f);
-        if (ImGui::Toggle("##BonesToggle", &showBones, ImGuiToggleFlags_Animated)) {
+        ImGuiToggleConfig config = ImGuiTogglePresets::MaterialStyle(1.0f);
+        if (ImGui::Toggle("##BonesToggle", &showBones, config)) {
             context.debugRenderer->SetShowBones(showBones);
         }
     }
