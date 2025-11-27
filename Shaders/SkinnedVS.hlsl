@@ -48,6 +48,7 @@ SkinnedVertex Skinning(VSInput input) {
     skinned.position += mul(float4(input.position, 1.0f), gMatrixPalette[input.boneIndices.z].skeletonSpaceMatrix) * input.boneWeights.z;
     skinned.position += mul(float4(input.position, 1.0f), gMatrixPalette[input.boneIndices.w].skeletonSpaceMatrix) * input.boneWeights.w;
     skinned.position.w = 1.0f;
+    
 
     // 法線のスキニング（InverseTranspose行列を使用）
     skinned.normal = mul(input.normal, (float3x3)gMatrixPalette[input.boneIndices.x].skeletonSpaceInverseTransposeMatrix) * input.boneWeights.x;
