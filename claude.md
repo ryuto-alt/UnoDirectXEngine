@@ -24,16 +24,15 @@
      - *Bad*: `// Create the descriptor heap`
      - *Good*: `// Shader-visible for bindless rendering`
 
-4. **Interaction Protocol (Question-First)**:
-   - **STOP & ASK**: Before implementing ANY feature, use the Question/Task UI to interview the user.
-   - **Confirm Specs**: Ask 3-5 clarification questions about requirements, edge cases, and constraints.
-     - *Example*: "Should this buffer be CPU-writable or GPU-local?", "Is this for the main render pass or compute?"
-   - **Plan Approval**: Output a step-by-step implementation plan and wait for explicit "OK" before writing code.
+4. **Interaction Protocol (Hybrid)**:
+   - **New Features (STOP & ASK)**: Before implementing NEW features, use the Question/Task UI to interview the user. Confirm specs and wait for plan approval.
+   - **Code Corrections/Fixes (EXECUTE IMMEDIATELY)**: When fixing bugs, refactoring, or optimizing, **DO NOT ASK**. Analyze the problem, determine the single optimal solution, and apply the change immediately.
 
 # Workflow Constraints
 1. **No Auto-Build**: User handles compilation. Wait for feedback.
 2. **No Ghost Files**: Do not create `.md` files. Use `serenaMCP` for notes.
 3. **Tool Usage**:
+   - **File Analysis (MANDATORY)**: ALWAYS use `serenaMCP` when reading, inspecting, or analyzing ANY file in the codebase. Direct file reading is forbidden if `serenaMCP` can handle it.
    - **Research**: ALWAYS use `braveMCP` for API specs. No guessing.
    - **Memory**: Use `serenaMCP` to record architectural decisions.
 
