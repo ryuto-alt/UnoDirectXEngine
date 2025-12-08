@@ -1,0 +1,99 @@
+# NavMesh System Architecture
+
+## 要件
+- **用途**: AIナビゲーション
+- **地形**: 複雑な3D（洞窟、橋、複数階層）
+- **動的障害物**: 不要（静的NavMesh）
+- **入力ソース**: シーン内コライダー
+- **階層接続**: 高さ差許容範囲で自動接続
+- **可視化**: 詳細表示（ポリゴン・接続・高さ）
+- **生成**: エディターでベイク
+- **保存形式**: バイナリ (.navmesh)
+- **アルゴリズム**: A*
+- **パラメータ**: グローバル設定
+
+## コンポーネント構成
+
+### 1. NavMeshConfig
+エージェントパラメータのグローバル設定
+- agentRadius: エージェント半径
+- agentHeight: エージェント高さ
+- maxSlope: 最大登坂角度（度）
+- stepHeight: 登れる段差の高さ
+- cellSize: ボクセル化のセルサイズ
+- cellHeight: ボクセル化の高さ分解能
+
+### 2. NavMeshBuilder
+コライダーからNavMesh生成（Recastアルゴリズム参考）
+1. ボクセル化: コライダーをボクセルグリッドに変換
+2. 歩行可能領域抽出: 傾斜・高さでフィルタリング
+3. 領域分割: 連続領域をリージョンに分割
+4. 輪郭抽出: リージョンの境界を抽出
+5. ポリゴン生成: 輪郭を三角形/凸ポリゴンに分割
+6. 隣接情報構築: ポリゴン間の接続関係を計算
+
+### 3. NavMesh (データ構造)
+```cpp
+struct NavMeshPolygon {
+    std::vector<uint32_t> vertexIndices;  // 頂点インデックス
+    std::vector<uint32_t> neighbors;       // 隣接ポリゴンID
+    DirectX::XMFLOAT3 center;             // 重心
+    float area;                            // 面積
+};
+
+struct NavMeshData {
+    std::vector<DirectX::XMFLOAT3> vertices;
+    std::vector<NavMeshPolygon> polygons;
+    DirectX::BoundingBox bounds;
+};
+```
+
+### 4. NavMeshQuery
+A*によるパス検索
+- FindPath(start, goal) -> std::vector<XMFLOAT3>
+- FindNearestPolygon(point) -> polygonId
+- IsPointOnNavMesh(point) -> bool
+
+### 5. NavMeshRenderer (エディター用)
+- ワイヤーフレーム表示
+- ポリゴン塗りつぶし表示
+- 接続線表示
+- 高さカラーマップ
+
+## ファイル構成
+```
+Engine/
+├── AI/
+│   ├── NavMesh/
+│   │   ├── NavMeshConfig.h
+│   │   ├── NavMeshData.h
+│   │   ├── NavMeshBuilder.h / .cpp
+│   │   ├── NavMeshQuery.h / .cpp
+│   │   ├── NavMeshSerializer.h / .cpp
+│   │   └── NavMeshRenderer.h / .cpp
+```
+
+## 実装フェーズ（完了）
+1. ✅ 基本データ構造 (NavMeshTypes.h)
+2. ✅ ビルダー (NavMeshBuilder.h/.cpp) - ボクセル化 → 領域分割 → 輪郭抽出 → ポリゴン生成
+3. ✅ A*パス検索 (NavMeshQuery.h/.cpp)
+4. ✅ バイナリシリアライザ (NavMeshSerializer.h/.cpp)
+5. ✅ システム統合 (NavMeshSystem.h/.cpp)
+6. ✅ エディターUI統合 (EditorUI.cpp) - ナビゲーションメニュー、設定ウィンドウ、デバッグ描画
+
+## 使用方法
+### エディターから
+- メニュー「ナビゲーション」→「NavMeshをベイク」
+- 「NavMesh設定」でパラメータ調整
+- 「NavMeshを表示」で可視化
+
+### コードから
+```cpp
+auto& navMesh = NavMeshSystem::GetInstance();
+navMesh.BakeNavMesh(scene);
+
+NavMeshPath path = navMesh.FindPath(startPos, goalPos);
+for (const auto& wp : path.waypoints) {
+    // ウェイポイントを使用
+}
+```
