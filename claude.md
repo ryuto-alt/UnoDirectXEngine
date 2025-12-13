@@ -28,6 +28,13 @@
    - **New Features (STOP & ASK)**: Before implementing NEW features, use the Question/Task UI to interview the user. Confirm specs and wait for plan approval.
    - **Code Corrections/Fixes (EXECUTE IMMEDIATELY)**: When fixing bugs, refactoring, or optimizing, **DO NOT ASK**. Analyze the problem, determine the single optimal solution, and apply the change immediately.
 
+5. **File Management (MANDATORY)**:
+   - When creating new files (`.h`, `.cpp`, `.hlsl`), **ALWAYS** update:
+     1. `.vcxproj` - Add `<ClInclude>`, `<ClCompile>`, or custom build entries
+     2. `.vcxproj.filters` - Add entries with correct filter paths
+   - **DO NOT** leave files outside the project. Every file must be buildable.
+   - Filter structure must mirror the logical folder hierarchy.
+
 # Workflow Constraints
 1. **No Auto-Build**: User handles compilation. Wait for feedback.
 2. **No Ghost Files**: Do not create `.md` files. Use `serenaMCP` for notes.
