@@ -133,6 +133,68 @@ navMesh.FindPath(start, goal, path);
 
 ---
 
+## NavAgentコンポーネント（新規追加）
+
+### 概要
+GameObjectにアタッチ可能なナビゲーションエージェント。NavMesh上を自動でパス追従移動する。
+
+### ファイル
+```
+Engine/Navigation/
+├── NavAgentComponent.h
+└── NavAgentComponent.cpp
+```
+
+### プロパティ
+- `speed`: 移動速度 (m/s)、デフォルト 3.5
+- `angularSpeed`: 回転速度 (deg/s)、デフォルト 360
+- `acceleration`: 加速度 (m/s²)、デフォルト 8.0
+- `stoppingDistance`: 停止距離 (m)、デフォルト 0.1
+- `baseOffset`: 地面からのオフセット
+- `autoBrake`: 到着時自動減速
+
+### 状態
+- `Idle`: 待機中
+- `Moving`: 移動中
+- `Arrived`: 到着
+
+### 使用例（Luaから）
+```lua
+-- エージェントを取得
+local agent = gameObject:GetComponent("NavAgent")
+
+-- 目的地を設定
+agent:SetDestination({x = 10, y = 0, z = 5})
+
+-- 状態確認
+if agent:HasReachedDestination() then
+    print("到着!")
+end
+```
+
+---
+
+## エディターUI（更新）
+
+### インスペクタータブシステム
+- **オブジェクトタブ**: 選択オブジェクトのプロパティ、コンポーネント表示
+- **NavMeshタブ**: ビルド設定、表示設定、統計情報
+
+### 自動タブ切り替え
+- NavMeshベイク成功時: 自動的にNavMeshタブを選択
+- メニュー「ナビゲーション」→「設定...」: NavMeshタブを選択
+
+### NavAgentコンポーネントUI
+インスペクターのオブジェクトタブで表示:
+- 移動/回転速度の調整
+- 加速度、停止距離の設定
+- 自動減速トグル
+- 状態表示（Idle/Moving/Arrived）
+- パス可視化トグル
+- 「Add NavAgent」ボタンでコンポーネント追加
+
+---
+
 ## 使用方法
 ### エディターから
 - メニュー「ナビゲーション」→「NavMeshをベイク」

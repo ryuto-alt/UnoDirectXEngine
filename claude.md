@@ -46,3 +46,14 @@
 - `!memo`: `serenaMCP` write.
 - `!hlsl`: Check C++/HLSL alignment.
 - `!plan`: Start the "Question-First" interview process for a new task.
+
+# Architecture Directives (DX12) - Updated
+- **Heaps**: Ring-buffer allocation for dynamic descriptors.
+- **Barriers**: Explicit state transitions. Verify `Present` state.
+- **Alignment**: `CBV` = 256 bytes. Structs must match HLSL packing rules (`!hlsl` to check).
+- **Resource Management**: Prefer `ComPtr` for lifetime management. Use `mcp-cpp` to verify exact structure definitions before allocation.
+- **Synchronization**: Always check for `D3D12_RESOURCE_BARRIER` consistency.
+
+# Tool Synergy Rules
+1. **mcp-cpp Usage**: When exploring DirectX12 headers or project-specific engine code, use `mcp-cpp` to resolve symbols and find definitions. Do NOT guess struct members.
+2. **Memory Bank Integration**: Since `claude-mem` is slow, manually trigger a sync to `activeContext.md` after significant DX12 state machine changes.
