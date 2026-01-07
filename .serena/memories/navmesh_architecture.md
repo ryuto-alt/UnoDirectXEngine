@@ -81,6 +81,58 @@ Engine/
 5. ✅ システム統合 (NavMeshSystem.h/.cpp)
 6. ✅ エディターUI統合 (EditorUI.cpp) - ナビゲーションメニュー、設定ウィンドウ、デバッグ描画
 
+## Recast/Detour版（ベイク機能実装済み）
+
+### ファイル構成
+```
+Engine/Navigation/
+├── NavMeshBuildSettings.h   - ビルド設定構造体
+├── NavMeshManager.h         - メインマネージャヘッダ
+└── NavMeshManager.cpp       - フル実装（ビルド・クエリ・I/O・DebugDraw）
+
+Engine/Graphics/
+└── Mesh.h/cpp               - CPU側頂点/インデックス保持（NavMesh用）
+```
+
+### 特徴
+- Recast/Detourライブラリを使用（`external/recast/`）
+- MeshクラスにCPU側データ保持機能を追加
+- EditorUIからのベイク実行
+- ビルド後、自動的にワイヤーフレーム表示
+
+### ベイクフロー
+1. EditorUI::BakeNavMesh()を呼び出し
+2. シーン内の全GameObjectからMeshRendererを取得
+3. Mesh::GetVertices()/GetIndices()でCPUデータを取得
+4. StaticGeometryに変換してNavMeshManager::BuildNavMesh()
+5. ビルド成功時、showRecastNavMesh_をtrueに設定
+6. PrepareSceneViewGizmos()でDebugDraw()を毎フレーム呼び出し
+
+### 使用方法（エディター）
+- メニュー「ナビゲーション」→「ベイク」(Ctrl+B)
+- 設定ウィンドウの「ベイク」ボタン
+- ビルド後、自動的にワイヤーフレーム表示
+
+### 使用方法（コード）
+```cpp
+auto& navMesh = UnoEngine::Navigation::NavMeshManager::Get();
+navMesh.Initialize();
+
+std::vector<Navigation::StaticGeometry> geometry;
+// シーンからジオメトリを収集...
+
+NavMeshBuildSettings settings;
+settings.cellSize = 0.1f;
+settings.agentRadius = 0.5f;
+
+navMesh.BuildNavMesh(geometry, settings);
+
+std::vector<DirectX::XMFLOAT3> path;
+navMesh.FindPath(start, goal, path);
+```
+
+---
+
 ## 使用方法
 ### エディターから
 - メニュー「ナビゲーション」→「NavMeshをベイク」
