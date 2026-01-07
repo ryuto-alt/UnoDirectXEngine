@@ -195,6 +195,258 @@ end
 
 ---
 
+## 非同期ベイク処理（実装済み）
+
+### 概要
+NavMeshベイク中のUIフリーズを解消するため、非同期処理を実装。
+
+### 実装詳細
+- `std::async` でベイク処理をバックグラウンド実行
+- `std::atomic<float>` で進捗を管理
+- `std::mutex` でステージ名の排他制御
+- ベイク中はモーダルポップアップで進捗バーを表示
+- 全UI操作をブロックして完了を待機
+
+### 関連メンバー変数（EditorUI.h）
+```cpp
+std::atomic<float> navMeshBakeProgress_{0.0f};
+std::string navMeshBakeStage_;
+std::mutex navMeshBakeMutex_;
+std::future<bool> navMeshBakeFuture_;
+std::atomic<bool> navMeshBaking_{false};
+```
+
+---
+
+## NavAgent可視化（実装済み）
+
+### 概要
+NavAgentコンポーネントを持つオブジェクトに対し、エージェントの半径と高さを円柱で描画。
+
+### 描画内容
+- 底面・上面に24分割の円（agentRadius）
+- 4本の縦線で円柱を表現（agentHeight）
+- 選択中は黄色、通常はシアン
+- パス移動中はパスラインも緑で表示
+
+### 設定値の参照
+NavMeshBuildSettingsの`agentRadius`と`agentHeight`を使用し、リアルタイムで反映。
+
+### NavMeshタブのNavAgent UI
+- 選択オブジェクトへのNavAgent追加/削除
+- 移動速度、回転速度、停止距離の設定
+
+---
+
+## DetourCrowd統合（新規実装）
+
+### 概要
+DetourCrowdライブラリを統合し、複数エージェントの衝突回避と滑らかなステアリングを実現。
+狭い迷路でも高精度なナビゲーションが可能。
+
+### NavMeshManager拡張
+```cpp
+// Crowd初期化（NavMeshビルド後に呼び出し）
+navMesh.InitializeCrowd(128, 0.6f);
+
+// エージェント追加
+int agentId = navMesh.AddCrowdAgent(position, radius, height, speed, acceleration);
+
+// 目的地設定
+navMesh.SetAgentTarget(agentId, targetPos);
+
+// 毎フレーム更新
+navMesh.UpdateCrowd(deltaTime);
+
+// ランダムポイント取得（徘徊用）
+DirectX::XMFLOAT3 randomPoint;
+navMesh.GetRandomPointOnNavMesh(randomPoint);
+navMesh.GetRandomPointAroundCircle(center, radius, randomPoint);
+```
+
+### 障害物回避パラメータ（狭い通路向け最適化）
+```cpp
+params.velBias = 0.4f;
+params.weightDesVel = 2.0f;
+params.weightCurVel = 0.75f;
+params.weightSide = 0.75f;
+params.weightToi = 2.5f;
+params.horizTime = 2.5f;
+params.gridSize = 33;
+params.adaptiveDivs = 7;
+params.adaptiveRings = 2;
+params.adaptiveDepth = 5;
+```
+
+---
+
+## NavAgentComponent拡張機能
+
+### 新しい状態
+- `Idle`: 待機中
+- `Moving`: 移動中
+- `Arrived`: 到着
+- `Wandering`: 徘徊中
+- `Patrolling`: パトロール中
+- `Chasing`: 追跡中
+
+### 徘徊（Wander）
+```cpp
+// スポーン地点周辺で徘徊
+agent->StartWander(WanderMode::AroundSpawn, 10.0f);
+
+// 完全ランダム
+agent->StartWander(WanderMode::Random);
+
+// 現在位置周辺
+agent->StartWander(WanderMode::AroundCurrent, 5.0f);
+
+agent->StopWander();
+```
+
+### パトロール（Patrol）
+```cpp
+std::vector<DirectX::XMFLOAT3> points = {{0,0,0}, {10,0,0}, {10,0,10}};
+agent->StartPatrol(points, true); // loop = true
+agent->StopPatrol();
+```
+
+### 追跡（Chase）
+```cpp
+agent->StartChase(targetGameObject, 0.5f); // 0.5秒間隔で更新
+agent->StopChase();
+```
+
+---
+
+## Luaスクリプトバインディング
+
+### 基本操作
+```lua
+-- 目的地設定
+NavAgent.setDestination(10, 0, 5)
+
+-- 停止
+NavAgent.stop()
+
+-- 状態確認
+local state = NavAgent.getState() -- "idle", "moving", "arrived", "wandering", "patrolling", "chasing"
+local reached = NavAgent.hasReachedDestination()
+local dist = NavAgent.getRemainingDistance()
+local vx, vy, vz = NavAgent.getVelocity()
+```
+
+### 徘徊
+```lua
+-- スポーン地点周辺で徘徊（半径10m）
+NavAgent.startWander(10)
+
+-- 完全ランダム
+NavAgent.startWanderRandom()
+
+-- 現在位置周辺
+NavAgent.startWanderAroundCurrent(5)
+
+NavAgent.stopWander()
+local isWandering = NavAgent.isWandering()
+```
+
+### パトロール
+```lua
+-- パトロールポイント追加
+NavAgent.addPatrolPoint(0, 0, 0)
+NavAgent.addPatrolPoint(10, 0, 0)
+NavAgent.addPatrolPoint(10, 0, 10)
+
+-- パトロール開始（ループ）
+NavAgent.startPatrol(true)
+
+NavAgent.stopPatrol()
+```
+
+### プロパティ
+```lua
+NavAgent.setSpeed(5.0)
+NavAgent.setAngularSpeed(360.0)
+NavAgent.setStoppingDistance(0.5)
+NavAgent.setWaitTime(2.0) -- 到着後の待機時間
+```
+
+---
+
+## スレッドセーフティとNavMesh再ベイク対応（重要）
+
+### 問題と修正
+
+#### 1. Use-After-Free問題
+**症状**: NavMesh再ベイク後にCrowd更新でクラッシュ（`dtNavMesh::getTileAndPolyByRef`で`m_tiles`が無効）
+
+**原因**: 
+- `BuildNavMesh()`が`m_navMesh`を破棄・再作成
+- しかし`m_crowd`は古いNavMeshへの内部参照を保持し続ける
+- Crowd更新時に解放済みメモリにアクセス
+
+**修正** (`NavMeshManager.cpp`):
+```cpp
+// BuildNavMesh()内で、NavMesh破棄前にCrowdも破棄
+if (m_crowd) {
+    dtFreeCrowd(m_crowd);
+    m_crowd = nullptr;
+}
+if (m_navMesh) {
+    dtFreeNavMesh(m_navMesh);
+    m_navMesh = nullptr;
+}
+```
+
+#### 2. 非同期ベイク中のレース条件
+**症状**: 非同期ベイク中にCrowd更新が実行されクラッシュ
+
+**修正**:
+- `NavMeshManager`に`m_isBuilding`フラグ追加
+- `SetBuilding(bool)`/`IsBuilding()`メソッド追加
+- `EditorUI::BakeNavMesh()`でベイク開始時に`SetBuilding(true)`、完了時に`SetBuilding(false)`
+- `Scene::OnUpdate()`でCrowd更新前に`IsBuilding()`チェック
+
+```cpp
+// Scene::OnUpdate()
+if (navMesh.IsCrowdInitialized() && !navMesh.IsBuilding()) {
+    navMesh.UpdateCrowd(deltaTime);
+}
+```
+
+#### 3. エージェント再初期化
+**症状**: NavMesh再ベイク後、エージェントが動かない
+
+**修正** (`NavAgentComponent::OnUpdate()`):
+```cpp
+// ビルド中は処理スキップ
+if (navMesh.IsBuilding()) {
+    return;
+}
+
+// Crowdが破棄された場合、エージェントをリセット
+if (crowdAgentIndex_ >= 0 && !navMesh.IsCrowdInitialized()) {
+    Logger::Info("[NavAgent] Crowd was reset, re-initializing agent...");
+    crowdAgentIndex_ = -1;
+    hasInitialDestination_ = false;
+}
+```
+
+### Crowd更新の正しい場所
+- **間違い**: 各`NavAgentComponent::OnUpdate()`でCrowd更新
+- **正解**: `Scene::OnUpdate()`でコンポーネント更新前に一度だけ呼び出し
+
+```cpp
+// Scene::OnUpdate() - コンポーネント更新の前
+auto& navMesh = Navigation::NavMeshManager::Get();
+if (navMesh.IsCrowdInitialized() && !navMesh.IsBuilding()) {
+    navMesh.UpdateCrowd(deltaTime);
+}
+```
+
+---
+
 ## 使用方法
 ### エディターから
 - メニュー「ナビゲーション」→「NavMeshをベイク」
